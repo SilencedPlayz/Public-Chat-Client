@@ -603,7 +603,7 @@
     }
     
     function wsStart(){
-      socket = new WebSocket(replit);
+      socket = new WebSocket(render);
       socket.onopen = () => {
         overlay.style.display = "none"
         log("log", `You joined as ${USERNAME}`)
