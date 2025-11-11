@@ -1,6 +1,6 @@
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=0.8">
+    <!meta name="viewport" content="width=device-width, height=device-height, initial-scale=0.9">
     <title>Web Chat by Rex</title>
     <style>
       body {
@@ -164,20 +164,6 @@
         margin-right: 5px;
         font-family: "poppins-b";
       }
-      #username {
-        border: none;
-        outline: none;
-        background: none;
-        width: 50%;
-        color: white;
-        font-family: poppins;
-        padding: 0;
-        opacity: 0.5;
-        font-size: 15px;
-      }
-      #username:focus {
-        border-bottom: 1px solid white;
-      }
       
       #overlay {
         position: fixed;
@@ -247,41 +233,47 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        outline: 1px solid #2d2d2d;
       }
-      #eu-field {
+      .eu-field {
         background-color: #0B0E13;
         width: 100%;
-        height: 90px;
-        border-radius: 35px;
+        height: 80px;
+        border-radius: 30px;
         display: flex;
         justify-content: space-evenly;
         align-items: center;
-        margin-top: 15px;
         margin-bottom: 15px;
+        outline: 1px solid #2d2d2d;
       }
-      #euf-icon {
+      .euf-icon {
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
         width: 20px;
-        height: 30px;
+        height: 20px;
         filter: invert(1);
-        background-image: url("./assets/user.png");
-        border-radius: 100px 100px 190px 190px;
         margin-left: 10px;
       }
-      #euf-group {
+      .icon-user {
+        border-radius: 100px 100px 190px 190px;
+        background-image: url("./assets/user.png");
+      }
+      .icon-password {
+        background-image: url("./assets/lock.png");
+      }
+      .euf-group {
         height: 40px;
         width: 200px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
       }
-      #euf-label {
+      .euf-label {
         font-size: 13px;
         opacity: 0.5;
       }
-      #euf-input {
+      .euf-input {
         background: none;
         outline: none;
         border: none;
@@ -291,7 +283,7 @@
         font-family: "poppins";
         width: 90%;
       }
-      #euf-input:focus {
+      .euf-input:focus {
         border-bottom: 0.5px solid #959595;
       }
       #eu-btnpanel {
@@ -331,14 +323,23 @@
     
     <div id="overlay">
       <div id="edit-usernameform">
-        <div>What should we call you?</div>
-        <div id="eu-field">
-          <div id="euf-icon"></div>
-          <div id="euf-group">
-            <div id="euf-label">Username</div>
-            <input id="euf-input" maxlength="20" placeholder="Guest" value="Guest">
+        <p>What should we call you?</p>
+        <div class="eu-field">
+          <div class="euf-icon icon-user"></div>
+          <div class="euf-group">
+            <div class="euf-label">Username</div>
+            <input id="username" class="euf-input" maxlength="20" placeholder="Guest" value="Guest">
           </div>
         </div>
+        
+        <!--div class="eu-field">
+          <div class="euf-icon icon-password"></div>
+          <div class="euf-group">
+            <div class="euf-label">Password</div>
+            <input type="password" id="password" class="euf-input" maxlength="20" placeholder="Enter...">
+          </div>
+        </div-->
+        
         <div id="errortxt">Unable to connect to server, try again.</div>
         <div id="eu-btnpanel">
           <div id="eu-btn">Log-In</div>
@@ -380,15 +381,21 @@
     const replit = "wss://publichat-server.onrender.com"
     const local = "ws://localhost:8080"
     const loginBtn = document.getElementById("eu-btn")
-    const usrField = document.getElementById("eu-field")
+    const usrFields = document.querySelectorAll(".eu-field")
     const input = document.getElementById("input")
     const sendBtn = document.getElementById("send")
-    const username = document.getElementById("euf-input")
+    const username = document.getElementById("username")
+    const password = document.getElementById("password")
+    const typeboard = document.getElementById("typeboard")
     const mic = document.getElementById("mic")
     const errorTxt = document.getElementById("errortxt")
     const conversation = document.getElementById("conversation")
+    let isInChat = false
     
-    username.value = names[Math.floor(Math.random()*names.length)]
+    const placeholderName = names[Math.floor(Math.random()*names.length)]
+    username.value = placeholderName
+    username.placeholder = placeholderName
+    
     input.addEventListener("input", ()=>{
       if(input.value.trim() === ""){
         sendBtn.style.pointerEvents = "none"
@@ -473,13 +480,13 @@
     }
     
     loginBtn.addEventListener("click", ()=>{
-      USERNAME = username.value
+      USERNAME = username.value.trim() === "" ? placeholderName : username.value
       errorTxt.style.display = "none"
       loginBtn.innerText = "Connecting..."
       loginBtn.style.opacity = "0.5"
       loginBtn.style.pointerEvents = "none"
-      usrField.style.opacity = "0.5"
-      usrField.style.pointerEvents = "none"
+      usrFields.forEach(field => field.style.opacity = "0.5")
+      usrFields.forEach(field => field.style.pointerEvents = "none")
       wsStart()
     })
     
@@ -487,8 +494,10 @@
       socket = new WebSocket(replit);
       socket.onopen = () => {
         overlay.style.display = "none"
+        log("log", `You joined as ${USERNAME}`)
         const sendlog = {type: "log", username: USERNAME, msg: `${USERNAME} joined`}
         socket.send(JSON.stringify(sendlog))
+        isInChat = true
       };
       
       socket.onmessage = (event) => {
@@ -514,8 +523,14 @@
         loginBtn.innerText = "Log-in"
         loginBtn.style.opacity = "1"
         loginBtn.style.pointerEvents = "auto"
-        usrField.style.opacity = "1"
-        usrField.style.pointerEvents = "auto"
+        usrFields.forEach(field => field.style.opacity = "1")
+        usrFields.forEach(field => field.style.pointerEvents = "auto")
+        if(isInChat){
+          log("log", "Disconnected from the server")
+          typeboard.style.opacity = "0.5"
+          typeboard.style.pointerEvents = "none"
+          sendBtn.style.pointerEvents = "none"
+        }
       };
     }
   </script>
