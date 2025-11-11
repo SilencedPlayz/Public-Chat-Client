@@ -1,0 +1,522 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=0.8">
+    <title>Web Chat by Rex</title>
+    <style>
+      body {
+        background-color: #0B0E13;
+        color: white;
+        margin: 0;
+        padding: 20px 30px 30px 30px;
+        font-family: "poppins";
+        display: grid;
+        grid-template-rows: 30px 1fr 200px;
+      }
+      @font-face {
+        font-family: "poppins";
+        src: url("./assets/Poppins-Regular.ttf") format("truetype")
+      }
+      @font-face {
+        font-family: "poppins-b";
+        src: url("./assets/Poppins-Bold.ttf") format("truetype")
+      }
+      @font-face {
+        font-family: "poppins-l";
+        src: url("./assets/Poppins-Light.ttf") format("truetype")
+      }
+      .log {}
+      .success {
+        color: lime;
+      }
+      .error {
+        color: red;
+      }
+      #typeboard {
+        bottom: 0;
+        margin: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        justify-self: center;
+        width: 90%;
+        max-width: 800px;
+        background-color: #1A2333;
+        border-radius: 20px;
+        overflow: hidden;
+        flex-direction: column;
+        padding: 10px;
+        outline: 1px solid #292929;
+        z-index: 15;
+      }
+      #input {
+        width: 100%;
+        height: 70%;
+        resize: none;
+        background: none;
+        outline: none;
+        border: none;
+        color: white;
+        font-size: 13px;
+        padding: 10px;
+        font-family: "poppins";
+      }
+      #input:focus {
+        height: 100px;
+      }
+      #btn-group {
+        height: 50px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn {
+        height: 100%;
+        width: 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        font-size: 13px;
+        font-family: "poppins";
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        font-family: "poppins";
+        border-radius: 20px;
+        color: white;
+        background-color: #1f74ff;
+        transition: background-color 0.3s ease-out;
+      }
+      #mic {
+        background-color: #00000000;
+        border-radius: 50px;
+        outline: 0.1px solid #bbbbbb;
+        background-image: url("./assets/mic_on.png");
+        background-size: 23px;
+        filter: invert(1);
+        width: 60px;
+        margin-right: 10px;
+      }
+      #mic:active {
+        background-color: #EFE9DE;
+      }
+      #send:active {
+        background-color: #3b86ff;
+      }
+      #send {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .divider-type {
+        background-color: #2d2d2d;
+        width: 100%;
+        height: 1px;
+        border-radius: 15px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+      .divider-btns {
+        background-color: #2d2d2d;
+        height: 50%;
+        width: 1px;
+        border-radius: 15px;
+        margin-bottom: 5px;
+        margin-top: 5px;
+      }
+      #conversation {
+        overflow-y: scroll;
+      }
+      h3 {
+        text-align: center;
+      }
+      .message-panel {
+        margin-top: 30px;
+      }
+      .self-msg {
+        justify-self: right;
+        text-align: right;
+      }
+      .username {
+        font-family: "poppins-l";
+        font-size: 13px;
+        opacity: 0.5;
+      }
+      .message {
+        max-height: 100px;
+        overflow-y: scroll;
+        text-overflow: ellipsis;
+      }
+      
+      #header {
+        display: flex;
+        font-size: 20px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+        align-items: center;
+      }
+      .h-panel {
+        display: flex;
+      }
+      .hp-label {
+        margin-right: 5px;
+        font-family: "poppins-b";
+      }
+      #username {
+        border: none;
+        outline: none;
+        background: none;
+        width: 50%;
+        color: white;
+        font-family: poppins;
+        padding: 0;
+        opacity: 0.5;
+        font-size: 15px;
+      }
+      #username:focus {
+        border-bottom: 1px solid white;
+      }
+      
+      #overlay {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #overlay-bg {
+        background-color: black;
+        opacity: 0.7;
+        height: 100%;
+        width: 100%;
+      }
+      #overlay-text {
+        display: none;
+        opacity: 1;
+        position: absolute;
+        z-index: 30;
+        animation: fade 3s infinite linear;
+      }
+      @keyframes fade {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      
+      .log-group {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        justify-content: center;
+      }
+      .divider-log {
+        background-color: #2d2d2d;
+        width: 100%;
+        height: 1px;
+      }
+      .log-text {
+        margin: 10px;
+        font-size: 10px;
+        text-align: center;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      #edit-usernameform {
+        width: 270px;
+        background-color: #1A2333;
+        position: absolute;
+        z-index: 30;
+        border-radius: 40px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #eu-field {
+        background-color: #0B0E13;
+        width: 100%;
+        height: 90px;
+        border-radius: 35px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+      #euf-icon {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        width: 20px;
+        height: 30px;
+        filter: invert(1);
+        background-image: url("./assets/user.png");
+        border-radius: 100px 100px 190px 190px;
+        margin-left: 10px;
+      }
+      #euf-group {
+        height: 40px;
+        width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      #euf-label {
+        font-size: 13px;
+        opacity: 0.5;
+      }
+      #euf-input {
+        background: none;
+        outline: none;
+        border: none;
+        color: white;
+        padding: 0;
+        font-size: 17px;
+        font-family: "poppins";
+        width: 90%;
+      }
+      #euf-input:focus {
+        border-bottom: 0.5px solid #959595;
+      }
+      #eu-btnpanel {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #eu-btn {
+        background-color: #1f74ff;
+        width: 60%;
+        height: 100%;
+        border-radius: 45px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #eu-btn:active {
+        background-color: #3b86ff;
+      }
+      #errortxt {
+        font-size: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        color: red;
+        display: none;
+      }
+      #author {
+        font-size: 13px;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <div id="overlay">
+      <div id="edit-usernameform">
+        <div>What should we call you?</div>
+        <div id="eu-field">
+          <div id="euf-icon"></div>
+          <div id="euf-group">
+            <div id="euf-label">Username</div>
+            <input id="euf-input" maxlength="20" placeholder="Guest" value="Guest">
+          </div>
+        </div>
+        <div id="errortxt">Unable to connect to server, try again.</div>
+        <div id="eu-btnpanel">
+          <div id="eu-btn">Log-In</div>
+        </div>
+      </div>
+      <div id="overlay-bg"></div>
+    </div>
+    
+    <div id="header">
+      <p>
+        <b>Public</b> chat<span id="author">by Rex/Silenced</span>
+      </p>
+    </div>
+    <div id="conversation"></div>
+    <div id="typeboard">
+        <textarea id="input" placeholder="Message..."></textarea>
+        <div class="divider-type"></div>
+        <div id="btn-group">
+          <div id="mic" class="btn"></div>
+          <div id="send" class="btn" onclick="send()">Send</div>
+        </div>
+      </div>
+  </body>
+  
+  <script>
+    const names = [
+      "Liam", 
+      "Sophia", 
+      "Ethan", 
+      "Ava", 
+      "Noah", 
+      "Mia", 
+      "Lucas", 
+      "Isabella", 
+      "James", 
+      "Amelia"
+    ];
+    let socket;
+    const replit = "wss://publichat-server.onrender.com"
+    const local = "ws://localhost:8080"
+    const loginBtn = document.getElementById("eu-btn")
+    const usrField = document.getElementById("eu-field")
+    const input = document.getElementById("input")
+    const sendBtn = document.getElementById("send")
+    const username = document.getElementById("euf-input")
+    const mic = document.getElementById("mic")
+    const errorTxt = document.getElementById("errortxt")
+    const conversation = document.getElementById("conversation")
+    
+    username.value = names[Math.floor(Math.random()*names.length)]
+    input.addEventListener("input", ()=>{
+      if(input.value.trim() === ""){
+        sendBtn.style.pointerEvents = "none"
+        sendBtn.style.opacity = "0.5"
+      }else{
+        sendBtn.style.pointerEvents = "auto"
+        sendBtn.style.opacity = "1"
+      }
+    })
+    
+    function log(type, message){
+      if(!message || !type){
+        console.error("Argument is missing: message,type")
+      } else {
+        if(type === "self"){
+          const msgpan = document.createElement("div")
+          const usrn = document.createElement("div")
+          const msg = document.createElement("div")
+          const msgUsername = message.username
+          const msgMes = message.msg
+          msgpan.classList.add("message-panel", "self-msg")
+          usrn.classList.add("username")
+          msg.classList.add("message")
+          usrn.innerText = msgUsername
+          msg.innerText = msgMes
+          msgpan.appendChild(usrn)
+          msgpan.appendChild(msg)
+          conversation.appendChild(msgpan)
+        }else
+        if(type === "other"){
+          const msgpan = document.createElement("div")
+          const usrn = document.createElement("div")
+          const msg = document.createElement("div")
+          const msgUsername = message.username
+          const msgMes = message.msg
+          msgpan.classList.add("message-panel")
+          usrn.classList.add("username")
+          msg.classList.add("message")
+          usrn.innerText = msgUsername
+          msg.innerText = msgMes
+          msgpan.appendChild(usrn)
+          msgpan.appendChild(msg)
+          conversation.appendChild(msgpan)
+        }else
+        if(type === "log"){
+          const newlog = document.createElement("div")
+          newlog.classList.add("log-group")
+          const newdivider = document.createElement("div")
+          const newdivider2 = document.createElement("div")
+          newdivider.classList.add("divider-log")
+          newdivider2.classList.add("divider-log")
+          const newtext = document.createElement("div")
+          newtext.classList.add("log-text")
+          newtext.innerText = message
+          conversation.appendChild(newlog)
+          newlog.appendChild(newdivider)
+          newlog.appendChild(newtext)
+          newlog.appendChild(newdivider2)
+        }else{
+          console.error("Invalid Type")
+        }
+      }
+    }
+    async function send(){
+      if(input.value.trim() === "") return;
+      if(input.value.trim().startsWith("?>")){
+        const logms = input.value.slice(2)
+        socket.send(JSON.stringify({type: "log", username: "Rex", msg: logms}))
+        log("log", logms)
+        input.value = "?>"
+      }else{
+        socket.send(JSON.stringify({type: "chat", username: USERNAME, msg: input.value}))
+        log("self", {username: USERNAME, msg: input.value})
+        input.value = ""
+        sendBtn.style.pointerEvents = "none"
+        sendBtn.style.opacity = "0.5"
+        conversation.scrollTo({
+          top: conversation.scrollHeight,
+          behavior: "smooth"
+        })
+      }
+    }
+    
+    loginBtn.addEventListener("click", ()=>{
+      USERNAME = username.value
+      errorTxt.style.display = "none"
+      loginBtn.innerText = "Connecting..."
+      loginBtn.style.opacity = "0.5"
+      loginBtn.style.pointerEvents = "none"
+      usrField.style.opacity = "0.5"
+      usrField.style.pointerEvents = "none"
+      wsStart()
+    })
+    
+    function wsStart(){
+      socket = new WebSocket(replit);
+      socket.onopen = () => {
+        overlay.style.display = "none"
+        const sendlog = {type: "log", username: USERNAME, msg: `${USERNAME} joined`}
+        socket.send(JSON.stringify(sendlog))
+      };
+      
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        const dt = data.type
+        const du = data.username
+        const dm = data.msg
+        console.log(dm)
+        if(dt === "log"){
+          log("log", dm)
+        }else
+        if(dt === "chat"){
+          log("other", {username: du, msg: dm})
+        }
+        conversation.scrollTo({
+          top: conversation.scrollHeight,
+          behavior: "smooth"
+        })
+      };
+      
+      socket.onclose = () => {
+        errorTxt.style.display = "block"
+        loginBtn.innerText = "Log-in"
+        loginBtn.style.opacity = "1"
+        loginBtn.style.pointerEvents = "auto"
+        usrField.style.opacity = "1"
+        usrField.style.pointerEvents = "auto"
+      };
+    }
+  </script>
+</html>
