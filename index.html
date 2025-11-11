@@ -584,6 +584,10 @@
       input.style.pointerEvents = "auto"
       input.style.opacity = "1"
       isOnMic = false
+      if(input.value.trim() !== ""){
+        sendBtn.style.opacity = "1"
+        sendBtn.style.pointerEvents = "auto"
+      }
     }
     sr.onerror = (e) =>{
       log("log", "Your browser is not supported")
@@ -596,10 +600,6 @@
       }else{
         sr.stop()
       }
-    }
-    
-    function checkOnline(){
-      
     }
     
     function wsStart(){
