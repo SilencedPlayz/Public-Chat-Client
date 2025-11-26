@@ -509,6 +509,7 @@
           msgpan.classList.add("message-panel", "self-msg")
           usrn.classList.add("username")
           msg.classList.add("message", "self-msg")
+          msg.readOnly = true
           usrn.innerText = msgUsername
           msg.innerText = msgMes
           msgpan.appendChild(usrn)
@@ -524,6 +525,7 @@
           msgpan.classList.add("message-panel")
           usrn.classList.add("username")
           msg.classList.add("message")
+          msg.readOnly = true
           usrn.innerText = msgUsername
           msg.innerText = msgMes
           msgpan.appendChild(usrn)
