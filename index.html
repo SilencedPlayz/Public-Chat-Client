@@ -361,6 +361,15 @@
       #op-count {
         font-size: 18px;
       }
+      #fullscreen {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-image: url("./assets/expand.png");
+        width: 15px;
+        height: 15px;
+        filter: invert(1);
+      }
     </style>
   </head>
   
@@ -401,6 +410,7 @@
         <div id="op-icon"></div>
         <div id="op-count">--</div>
       </div>
+      <div id="fullscreen" onclick="reqFS()"></div>
     </div>
     <div id="conversation"></div>
     <div id="typeboard">
@@ -432,6 +442,7 @@
     const replit = "wss://4c247a47-dfba-48e5-9288-a0b46abc340d-00-3v6p32ewl2slk.sisko.replit.dev:3000/"
     const local = "ws://localhost:3000"
     
+    const fs = document.getElementById("fullscreen")
     const loginBtn = document.getElementById("eu-btn")
     const usrFields = document.querySelectorAll(".eu-field")
     const input = document.getElementById("input")
@@ -649,6 +660,16 @@
           sendBtn.style.pointerEvents = "none"
         }
       };
+    }
+    
+    function reqFS(){
+      if(document.body.requestFullscreen){
+        document.body.requestFullscreen()
+      }else if(document.body.webkitRequestFullscreen){
+        document.body.webkitRequestFullscreen()
+      }else if(document.body.msRequestFullscreen){
+        document.body.msRequestFullscreen()
+      }
     }
   </script>
 </html>
