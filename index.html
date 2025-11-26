@@ -162,9 +162,17 @@
         opacity: 0.5;
       }
       .message {
-        max-height: 100px;
         overflow-y: scroll;
+        background: none;
+        border: none;
+        outline: none;
+        resize: none;
+        color: white;
+        font-family: "poppins";
+        text-overflow: pre-wrap;
         text-overflow: ellipsis;
+        height: 70px;
+        max-height: 500px;
       }
       
       #header {
@@ -356,7 +364,7 @@
         height: 15px;
         filter: invert(1);
         border-radius: 15px;
-        margin-right: 5px;
+        margin-right: 10px;
       }
       #op-count {
         font-size: 18px;
@@ -364,11 +372,17 @@
       #fullscreen {
         background-repeat: no-repeat;
         background-position: center;
-        background-size: cover;
+        background-size: contain;
         background-image: url("./assets/expand.png");
         width: 15px;
         height: 15px;
         filter: invert(1);
+      }
+      
+      #side-opt {
+        display: flex;
+        align-items: center;
+        column-gap: 15px;
       }
     </style>
   </head>
@@ -406,11 +420,13 @@
       <p>
         <b>Public</b>Chat<span id="author">by Rex</span>
       </p>
-      <div id="online-panel">
-        <div id="op-icon"></div>
-        <div id="op-count">--</div>
+      <div id="side-opt">
+        <div id="online-panel">
+          <div id="op-icon"></div>
+          <div id="op-count">--</div>
+        </div>
+        <div id="fullscreen" onclick="reqFS()"></div>
       </div>
-      <div id="fullscreen" onclick="reqFS()"></div>
     </div>
     <div id="conversation"></div>
     <div id="typeboard">
@@ -487,12 +503,12 @@
         if(type === "self"){
           const msgpan = document.createElement("div")
           const usrn = document.createElement("div")
-          const msg = document.createElement("div")
+          const msg = document.createElement("textarea")
           const msgUsername = message.username
           const msgMes = message.msg
           msgpan.classList.add("message-panel", "self-msg")
           usrn.classList.add("username")
-          msg.classList.add("message")
+          msg.classList.add("message", "self-msg")
           usrn.innerText = msgUsername
           msg.innerText = msgMes
           msgpan.appendChild(usrn)
@@ -502,7 +518,7 @@
         if(type === "other"){
           const msgpan = document.createElement("div")
           const usrn = document.createElement("div")
-          const msg = document.createElement("div")
+          const msg = document.createElement("textarea")
           const msgUsername = message.username
           const msgMes = message.msg
           msgpan.classList.add("message-panel")
