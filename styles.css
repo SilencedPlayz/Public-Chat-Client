@@ -159,6 +159,10 @@ body {
 #conversation {
   overflow-y: scroll;
   max-height: 75%;
+  scrollbar-width: none;
+}
+#conversation::-webkit-scrollbar {
+  display: none;
 }
 h3 {
   text-align: center;
